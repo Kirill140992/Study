@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in $(seq 1 1000000); do
+	randomvalue=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+	echo "SET key${i} ${randomvalue}"
+done > redis-commands.txt

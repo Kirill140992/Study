@@ -1,0 +1,28 @@
+---
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+    
+- name: Copy nginx configuration
+  template:
+    src: test.conf
+    dest: /etc/nginx/sites-enabled/default
+    mode: "0644"
+
+- name: Remove default site configuration
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Ensure nginx is running and sites-enabled
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Reload nginx
+  service:
+    name: nginx
+    state: reloaded

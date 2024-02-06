@@ -1,0 +1,85 @@
+version: '3'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    ports:
+      - "9100:9100"
+    volumes:
+      - "/:/host:ro,rslave"
+
+
+  redis-master:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - ./redis.conf:/etc/redis/redis.conf
+
+    command: redis-server /etc/redis/redis.conf
+
+  redis-slave:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redis-slave.conf:/etc/redis/redis.conf
+
+    command: redis-server /etc/redis/redis.conf  
+
+  redis_exporter:
+    image: oliver006/redis_exporter
+    ports:
+      - "9121:9121"
+
+
+
+  haproxy:
+    image: haproxy:latest
+    ports:
+      - "16379:6379"
+    volumes:
+       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
+  blackbox_exporter:
+    image: prom/blackbox-exporter
+    ports:
+      - "9115:9115"
+
+    volumes: 
+      - ./blackbox.yml:/etc/blackbox-exporter/config.yml
+    command:
+      - '--config.file=/etc/blackbox-exporter/config.yml'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+
+
+  
+
+        

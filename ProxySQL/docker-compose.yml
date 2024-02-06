@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  mysql-master:
+    build: .
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: masterdb
+    volumes:
+      - master-data:/var/lib/mysql
+      - ./cert:/etc/mysql/certs
+      - ./master.cnf:/etc/mysql/conf.d/custom.cnf      
+
+  mysql-slave:
+    build: .
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: slavedb
+    volumes:
+      - slave-data:/var/lib/mysql
+      - ./cert:/etc/mysql/certs
+      - ./slave.cnf:/etc/mysql/conf.d/custom.cnf
+
+  proxysql:
+    image: proxysql/proxysql
+    ports:
+      - "6033:6033"
+      - "6032:6032"
+    volumes:
+      - ./proxysql.cnf:/etc/proxysql.cnf
+    depends_on:
+      - mysql-master
+      - mysql-slave
+
+volumes:
+  master-data:
+  slave-data:
